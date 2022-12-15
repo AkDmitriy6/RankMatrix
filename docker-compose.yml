@@ -1,0 +1,59 @@
+#version: "3.8"
+#services:
+#  app:
+#    build: .
+#    container_name: django_app
+#    env_file:
+#      - variables.env
+#    restart: always
+#    ports:
+#      - "88:8000"
+
+
+
+
+
+version: "3"
+services:
+  app_server: #Название конфигурации
+    build: #Сборка
+      context: .
+      dockerfile: ./app/Dockerfile #Путь к докер файлу
+    container_name: ${APP_CONTAINER_NAME} #Имя контейнера
+    environment:
+      - .env #Ссылка на файл среды
+    entrypoint: ['uwsgi', 'app_uwsgi.ini'] #Точка входа
+    restart: always #Параметр перезагрузки
+    #ports: #Порты для открытия
+      #-"8000:8000"
+    volumes: #Ссылка на статические файлы
+      - static_files:${STATIC_ROOT}
+
+  nginx_server: #Название конфигурации
+    build: #Сборка
+      context: .
+      dockerfile: ./nginx/Dockerfile #Путь к докер файлу
+    container_name: ${NGINX_SERVER_CONTAINER_NAME} #Имя контейнера
+    environment:
+      - .env #Ссылка на файл среды
+    #ports: #Порты для открытия
+      # - "80:80"
+    volumes: #Ссылка на статические файлы
+      - static_files:${STATIC_PATH_NGINX}
+    depends_on: #Зависимости
+      - app_server
+
+  http_client: #Название конфигурации
+      build: #Сборка
+        context: .
+        dockerfile: ./http-client/Dockerfile #Путь к докер файлу
+      container_name: ${CLIENT_CONTAINER_NAME} #Имя контейнера
+      environment:
+        - .env #Ссылка на файл среды
+      ports: #Порты для открытия
+        - "80:80"
+      depends_on: #Зависимости
+       - app_server
+       - nginx_server
+volumes: #Ссылка на статические файлы
+  static_files:

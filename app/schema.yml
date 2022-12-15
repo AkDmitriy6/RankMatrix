@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: Rank API
+  version: 1.0.0
+  description: API that get rank of the matrix #описание работы
+paths:
+  /api/{cols}/{rows}/{args}:
+    get:
+      operationId: api_retrieve
+      parameters: # параметры необходимые для нахождения ранга
+      - in: path
+        name: args
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: cols
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: rows
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
